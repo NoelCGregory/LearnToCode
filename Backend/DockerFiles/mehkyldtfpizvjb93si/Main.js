@@ -1,6 +1,6 @@
 
 function addVal(a,b){
- return a+b;
+ //Write some Code
 }
 
       try {

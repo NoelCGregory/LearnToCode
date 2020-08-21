@@ -107,21 +107,21 @@ button {
 }
 
 .playground-console::-webkit-scrollbar-track {
-  background-color: lighten(#333, 10%);
+  background-color: lighten(#bbccdd, 10%);
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
 }
 
 .playground-console::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-  background-color: lighten(#333, 10%);
+  width: 18px;
+  height: 18px;
+  background-color: lighten(#bbccdd, 10%);
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
 }
 
 .playground-console::-webkit-scrollbar-thumb {
-  background-color: #111;
+  background-color: #bbccdd;
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
 }

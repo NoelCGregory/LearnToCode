@@ -1,5 +1,12 @@
 import React from "react";
 import "./Editor.css";
+import {
+  MDBTabPane,
+  MDBTabContent,
+  MDBNav,
+  MDBNavItem,
+  MDBNavLink,
+} from "mdbreact";
 
 const Console = (props) => {
   const { logConsole, onSwitch, size } = props;
@@ -45,44 +52,54 @@ const Console = (props) => {
 
   console.log(verticalSize, horizontalSize);
   return (
-    <div className="playground-console-container">
-      <div
-        className="playground-console"
-        style={{ height: horizontalSize, width: verticalSize }}
-      >
-        <button
-          onClick={onSwitch}
-          style={{ float: "right" }}
-          className="btn btn-outline-light btn-sm waves-effect "
-        >
-          Switch
-        </button>
-        <ul id="loaderConsole">
-          <li className="console-line">
-            <span className="console-carrot">{">"}</span>
-            <span className="whiteSpace">
-              <div className="center">
-                {" "}
-                <div className="loader "></div>
-              </div>
-            </span>
-          </li>
-        </ul>
+    <div>
+      <MDBNav style={{ backgroundColor: "#272727" }} classicTabs>
+        <MDBNavItem>
+          <MDBNavLink
+            link
+            className="link text-white RunCode "
+            onClick={onSwitch}
+          >
+            Switch
+          </MDBNavLink>
+        </MDBNavItem>
+      </MDBNav>
+      <MDBTabContent>
+        <MDBTabPane>
+          <div className="playground-console-container">
+            <div
+              className="playground-console"
+              style={{ height: horizontalSize, width: verticalSize }}
+            >
+              <ul id="loaderConsole">
+                <li className="console-line">
+                  <span className="console-carrot">{">"}</span>
+                  <span className="whiteSpace">
+                    <div className="center">
+                      {" "}
+                      <div className="loader "></div>
+                    </div>
+                  </span>
+                </li>
+              </ul>
 
-        <ul id="log">
-          {logConsole.map((item, index) => (
-            <li key={index} className="console-line">
-              <span className="console-carrot">{">"}</span>
-              <span style={pickColor(item)} className="whiteSpace">
-                {errFormat(item)}
-              </span>
-            </li>
-          ))}
-          <li>
-            <span className="console-carrot">{">"}</span>
-          </li>
-        </ul>
-      </div>
+              <ul id="log">
+                {logConsole.map((item, index) => (
+                  <li key={index} className="console-line">
+                    <span className="console-carrot">{">"}</span>
+                    <span style={pickColor(item)} className="whiteSpace">
+                      {errFormat(item)}
+                    </span>
+                  </li>
+                ))}
+                <li>
+                  <span className="console-carrot">{">"}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </MDBTabPane>
+      </MDBTabContent>
     </div>
   );
 };

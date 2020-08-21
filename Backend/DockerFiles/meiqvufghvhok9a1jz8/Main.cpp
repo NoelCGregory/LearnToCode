@@ -1,12 +1,6 @@
 
     #include <iostream>
-    using namespace std;int addVal(int a,int b) {
-    int n = a+b;
-    
-    cout << n;
-    
-    return n;
-} int main ()
+    using namespace std; int main ()
         { 
       try {
         cout << "-||" << addVal(1,2) << "||-" ;

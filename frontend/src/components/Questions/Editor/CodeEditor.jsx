@@ -43,7 +43,7 @@ class CodeEditor extends Component {
   setSize() {
     const { size } = this.props;
     const horizontalSize = size.horizontal - 40;
-    const verticalSize = window.screen.width - size.vertical - 15;
+    const verticalSize = window.screen.width - size.vertical - 10;
 
     if (this.editor != null) {
       this.editor.setSize(verticalSize, horizontalSize);
@@ -51,7 +51,7 @@ class CodeEditor extends Component {
   }
 
   render() {
-    const { value, mode, onRun, handleChange } = this.props;
+    const { value, mode, onRun, handleChange, size } = this.props;
     this.options.mode = mode;
     return (
       <div>
