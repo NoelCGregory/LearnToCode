@@ -10,14 +10,10 @@ class Editor extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      activeItemClassicTabs1: "1",
-      value: "",
       id: "",
-      functionCall: "",
-      language: "",
       log: [],
       testCases: [],
-      functionAns: "",
+      question: {},
       size: {
         vertical:
           Math.floor(window.screen.width / 2) -
@@ -30,11 +26,6 @@ class Editor extends Component {
       switchPanel: false,
     };
   }
-  toggleClassicTabs1 = (tab) => () => {
-    this.setState({
-      activeItemClassicTabs1: tab,
-    });
-  };
 
   componentDidMount() {
     this.getQuestionInfo();
@@ -54,83 +45,37 @@ class Editor extends Component {
   }
 
   async getQuestionInfo() {
-    let {
-      value,
-      id,
-      functionCall,
-      language,
-      log,
-      functionAns,
-      size,
-      testCases,
-      switchPanel,
-    } = this.state;
+    let { id, question } = this.state;
     id = this.props.match.params.id;
     const fetch_resp = await fetch(`/getQuestionInfo/${id}`);
     const json_resp = await fetch_resp.json();
-    value = json_resp.data.function;
-    functionCall = json_resp.data.funcCall;
-    functionAns = json_resp.data.funcAns;
-    language = json_resp.data.language;
+    question = json_resp.data;
     this.setState({
-      value,
       id,
-      functionCall,
-      language,
-      log,
-      functionAns,
-      size,
-      testCases,
-      switchPanel,
+      question,
     });
   }
 
   handleChange = (editor, data, value) => {
-    const {
-      id,
-      functionCall,
-      language,
-      log,
-      functionAns,
-      size,
-      testCases,
-      switchPanel,
-    } = this.state;
+    let { question } = this.state;
+    question.function = value;
     this.setState({
-      value,
-      id,
-      functionCall,
-      language,
-      log,
-      functionAns,
-      size,
-      testCases,
-      switchPanel,
+      question,
     });
   };
   handleRun = async () => {
     let startTime = new Date();
     document.getElementById("loaderConsole").style.display = "block";
     document.getElementById("log").style.display = "none";
-    let {
-      value,
-      id,
-      functionCall,
-      language,
-      log,
-      functionAns,
-      size,
-      testCases,
-      switchPanel,
-    } = this.state;
+    let { id, question, log, testCases, switchPanel } = this.state;
     testCases = [];
     log = [];
     const json = {
       id: id,
-      functionCode: value,
-      functionAns: functionAns,
-      functionCall: functionCall,
-      language: language,
+      functionCode: question.function,
+      functionAns: question.funcAns,
+      functionCall: question.funcCall,
+      language: question.language,
     };
     const fetch_resp = await fetch("/code", {
       method: "POST",
@@ -162,80 +107,29 @@ class Editor extends Component {
     document.getElementById("loaderConsole").style.display = "none";
     document.getElementById("log").style.display = "block";
     this.setState({
-      value,
       id,
-      functionCall,
-      language,
+      question,
       log,
-      functionAns,
-      size,
       testCases,
       switchPanel,
     });
   };
   handleSplitVertical = (splitSize) => {
-    let {
-      value,
-      id,
-      functionCall,
-      language,
-      log,
-      functionAns,
-      size,
-      testCases,
-      switchPanel,
-    } = this.state;
+    let { size } = this.state;
     size.vertical = splitSize;
     this.setState({
-      value,
-      id,
-      functionCall,
-      language,
-      log,
-      functionAns,
       size,
-      testCases,
-      switchPanel,
     });
   };
   handleSplitHorizontal = (splitSize) => {
-    let {
-      value,
-      id,
-      functionCall,
-      language,
-      log,
-      functionAns,
-      size,
-      testCases,
-      switchPanel,
-      c,
-    } = this.state;
+    let { size } = this.state;
     size.horizontal = splitSize;
     this.setState({
-      value,
-      id,
-      functionCall,
-      language,
-      log,
-      functionAns,
       size,
-      testCases,
-      switchPanel,
     });
   };
   handleSwitch = () => {
-    let {
-      value,
-      id,
-      functionCall,
-      language,
-      log,
-      functionAns,
-      size,
-      testCases,
-      switchPanel,
-    } = this.state;
+    let { testCases, switchPanel, log } = this.state;
     if (switchPanel === false) {
       let temp = testCases;
       testCases = log;
@@ -248,20 +142,16 @@ class Editor extends Component {
       switchPanel = false;
     }
     this.setState({
-      value,
-      id,
-      functionCall,
-      language,
-      log,
-      functionAns,
-      size,
       testCases,
       switchPanel,
+      log,
     });
   };
 
   render() {
-    const { value, language, log, size, activeItemClassicTabs1 } = this.state;
+    const { question, log, size } = this.state;
+    const language = question.language;
+    const value = question.function;
     return (
       <div>
         <SplitPane
@@ -272,7 +162,7 @@ class Editor extends Component {
         >
           <Navbar />
           <SplitPane
-            className="ss"
+            className="background"
             split="vertical"
             onChange={this.handleSplitVertical}
             minSize={
@@ -284,11 +174,7 @@ class Editor extends Component {
               Math.floor(window.screen.width / 10)
             }
           >
-            <Instructions
-              size={size.vertical}
-              activeItemClassicTabs1={activeItemClassicTabs1}
-              onToggle={this.toggleClassicTabs1}
-            />
+            <Instructions question={question} size={size.vertical} />
             <SplitPane
               split="horizontal"
               onChange={this.handleSplitHorizontal}
@@ -302,7 +188,6 @@ class Editor extends Component {
               }
             >
               <CodeEditor
-                id="code"
                 mode={
                   language === "java" || language === "c++"
                     ? "text/x-java"

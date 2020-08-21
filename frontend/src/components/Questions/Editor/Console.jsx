@@ -36,7 +36,7 @@ const Console = (props) => {
     return err;
   }
   return (
-    <div className="playground-console-container">
+    <div className="playground-console-container" style={{ height: "500px" }}>
       <div className="playground-console">
         <button
           onClick={onSwitch}

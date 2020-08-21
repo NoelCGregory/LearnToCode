@@ -1,4 +1,4 @@
-.ss {
+.background {
   background: #2d2d2d;
 }
 
@@ -158,7 +158,7 @@ button {
   color: "white";
 }
 .link:hover {
-  background-color: brown;
+  background-color: #4286f4cb;
 }
 
 .RunCode {

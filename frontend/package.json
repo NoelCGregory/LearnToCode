@@ -12,6 +12,7 @@
     "codemirror": "^5.57.0",
     "mdbootstrap": "^4.19.1",
     "mdbreact": "^4.27.0",
+    "node-sass": "^4.14.1",
     "re-resizable": "^6.5.4",
     "react": "^16.13.1",
     "react-codemirror": "^1.0.0",
@@ -26,6 +27,11 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
+  },
+  "sass": {
+    "includePaths": [
+      "./node_modules"
+    ]
   },
   "eslintConfig": {
     "extends": "react-app"
