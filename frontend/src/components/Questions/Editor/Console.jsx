@@ -2,7 +2,7 @@ import React from "react";
 import "./Editor.css";
 
 const Console = (props) => {
-  const { logConsole, onSwitch } = props;
+  const { logConsole, onSwitch, size } = props;
   function pickColor(item) {
     if (
       item.includes("passed") === false &&
@@ -35,9 +35,18 @@ const Console = (props) => {
     }
     return err;
   }
+  console.log(size.vertical, size.horizontal);
+  console.log(window.screen.width, window.screen.height);
+  const horizontalSize = window.screen.height - size.horizontal;
+  const verticalSize = window.screen.width - size.vertical;
+
+  console.log(verticalSize, horizontalSize);
   return (
-    <div className="playground-console-container" style={{ height: "500px" }}>
-      <div className="playground-console">
+    <div className="playground-console-container">
+      <div
+        className="playground-console"
+        style={{ height: horizontalSize, width: verticalSize }}
+      >
         <button
           onClick={onSwitch}
           style={{ float: "right" }}
