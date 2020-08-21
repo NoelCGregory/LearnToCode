@@ -17,7 +17,7 @@ require("codemirror/mode/python/python");
 require("codemirror/mode/javascript/javascript");
 require("codemirror/keymap/sublime");
 require("codemirror/addon/scroll/simplescrollbars");
-
+require("codemirror/addon/edit/closebrackets");
 class CodeEditor extends Component {
   constructor(props) {
     super(props);
@@ -26,11 +26,10 @@ class CodeEditor extends Component {
       lineNumbers: true,
       mode: "",
       scrollbarStyle: "overlay",
-      matchBrackets: true,
       theme: "monokai",
       keyMap: "sublime",
       lineWrapping: true,
-      autoClosingBrackets: true,
+      autoCloseBrackets: true,
     };
   }
   componentDidUpdate() {

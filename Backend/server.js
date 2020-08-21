@@ -283,6 +283,7 @@ app.get("/getQuestionInfo/:id", (request, response) => {
 });
 
 function compareResult(funcOutput, orgOutput) {
+  console.log(funcOutput, orgOutput);
   if (funcOutput == orgOutput) {
     return "passed";
   } else {
