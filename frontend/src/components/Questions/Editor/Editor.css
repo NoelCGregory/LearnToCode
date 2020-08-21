@@ -66,12 +66,10 @@
   position: relative;
 }
 .CodeMirror {
-  border-radius: 1%;
   font-size: 18px;
 }
 
 .question-container {
-  border-radius: 1%;
   background: #252526;
 }
 

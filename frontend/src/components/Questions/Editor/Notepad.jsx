@@ -2,9 +2,11 @@ import React, { Component } from "react";
 import "./Editor.css";
 import { Controlled as CodeMirror } from "react-codemirror2";
 import "codemirror/lib/codemirror.css";
+import "codemirror/addon/scroll/simplescrollbars.css";
 require("codemirror/mode/javascript/javascript");
 require("codemirror/keymap/sublime");
 require("codemirror/addon/display/placeholder");
+require("codemirror/addon/scroll/simplescrollbars");
 class Notepad extends Component {
   constructor(props) {
     super(props);
@@ -12,6 +14,7 @@ class Notepad extends Component {
     this.options = {
       mode: "",
       matchBrackets: true,
+      scrollbarStyle: "overlay",
       placeholder: "Write Here...",
       theme: "monokai",
       keyMap: "sublime",
@@ -27,7 +30,7 @@ class Notepad extends Component {
 
   setSize() {
     const { size } = this.props;
-    const widthSize = size.width;
+    const widthSize = size.width - 15;
     const heightSize = size.height;
 
     if (this.editor != null) {
