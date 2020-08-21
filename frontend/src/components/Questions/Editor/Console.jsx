@@ -37,7 +37,10 @@ const Console = (props) => {
   }
   console.log(size.vertical, size.horizontal);
   console.log(window.screen.width, window.screen.height);
-  const horizontalSize = window.screen.height - size.horizontal;
+  const horizontalSize =
+    window.screen.height -
+    size.horizontal -
+    Math.floor(window.screen.height / 7);
   const verticalSize = window.screen.width - size.vertical;
 
   console.log(verticalSize, horizontalSize);

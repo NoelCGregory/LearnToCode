@@ -1,3 +1,8 @@
 .navColor {
   background-color: #007acc;
 }
+
+.navbar-nav {
+  height: 40px;
+  padding-top: 0;
+}

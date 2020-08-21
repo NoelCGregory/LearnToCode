@@ -33,10 +33,7 @@ class Instructions extends Component {
     const { size, question } = this.props;
     const { value, tabNum } = this.state;
     return (
-      <div
-        style={{ height: window.screen.height, width: size }}
-        class="question-container"
-      >
+      <div class="question-container">
         <MDBNav style={{ backgroundColor: "#272727" }}>
           <MDBNavItem>
             <MDBNavLink
@@ -59,8 +56,16 @@ class Instructions extends Component {
             </MDBNavLink>
           </MDBNavItem>
         </MDBNav>
-        <MDBTabContent style={{ color: "white" }} activeItem={tabNum}>
-          <MDBTabPane tabId="1" style={{ margin: "3%" }}>
+        <MDBTabContent
+          style={{
+            color: "white",
+            margin: "12px",
+            height: window.screen.height - Math.floor(window.screen.height / 5),
+            width: size,
+          }}
+          activeItem={tabNum}
+        >
+          <MDBTabPane tabId="1">
             <h4>{question.questionName}</h4>
             <p>{question.funcDescp}</p>
           </MDBTabPane>
@@ -69,7 +74,11 @@ class Instructions extends Component {
               mode={"text/plain"}
               value={value}
               handleChange={this.handleChange}
-              size={{ height: window.screen.height, width: size }}
+              size={{
+                height:
+                  window.screen.height - Math.floor(window.screen.height / 5),
+                width: size,
+              }}
             />
           </MDBTabPane>
         </MDBTabContent>

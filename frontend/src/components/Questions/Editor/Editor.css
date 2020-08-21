@@ -71,10 +71,7 @@
 }
 
 .question-container {
-  border-radius: 2%;
-  margin-top: 1.5%;
-  margin-left: 1.5%;
-  margin-bottom: 1.5%;
+  border-radius: 1%;
   background: #252526;
 }
 
