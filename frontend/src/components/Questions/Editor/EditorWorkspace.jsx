@@ -27,7 +27,9 @@ class Editor extends Component {
     };
   }
   unMount = (e) => {
-    e.preventDefault();
+    if (e != undefined) {
+      e.preventDefault();
+    }
     let { id, language, question } = this.state;
     fetch(`/destroyCode`, {
       method: "POST",
