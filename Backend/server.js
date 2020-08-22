@@ -269,17 +269,50 @@ ${functionCallAr}`;
     }
   );
 });
-app.get("/getQuestionInfo/:id", (request, response) => {
-  const id = request.params.id;
-  let ref = db.ref(`Questions/${id}`);
-  let searchQuery = {
-    data: "no Search Data Found",
+app.post("/saveCode", (request, response) => {
+  const {
+    id,
+    name,
+    difficulty,
+    questionName,
+    funcDescp,
+    functionCode,
+    funcAns,
+    funcCall,
+    language,
+  } = request.body;
+  let ref = db.ref(`Users/${name}/${id}`);
+  const saveData = {
+    difficulty: difficulty,
+    funcAns: funcAns,
+    funcCall: funcCall,
+    funcDescp: funcDescp,
+    function: functionCode,
+    language: language,
+    questionName: questionName,
   };
-  ref
-    .once("value", (data) => {
-      searchQuery.data = data.val();
-    })
-    .then(() => response.json(searchQuery));
+  ref.set(saveData);
+});
+app.get("/getQuestionInfo/:id/:name", (request, response) => {
+  const id = request.params.id;
+  const name = request.params.name;
+  let ref = db.ref(`Users/${name}/${id}`);
+  ref.once("value").then((snapshot) => {
+    let result = snapshot.exists();
+    if (result == true) {
+      ref = db.ref(`Users/${name}/${id}`);
+    } else {
+      ref = db.ref(`Questions/${id}`);
+    }
+    let searchQuery = {
+      data: "no Search Data Found",
+    };
+    ref
+      .once("value", (data) => {
+        searchQuery.data = data.val();
+      })
+      .then(() => response.json(searchQuery));
+  });
 });
 
 function compareResult(funcOutput, orgOutput) {

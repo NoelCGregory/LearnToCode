@@ -39,7 +39,10 @@ class Questions extends Component {
                 <span className="badge badge-danger m-2">{val.difficulty}</span>
                 <span className="badge badge-warning m-2">{val.language}</span>
               </h5>
-              <Link className="btn btn-primary" to={`/editor/${keys[idx]}`}>
+              <Link
+                className="btn btn-primary"
+                to={`/editor/${keys[idx]}/noel`}
+              >
                 Try Code
               </Link>
             </div>

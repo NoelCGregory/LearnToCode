@@ -33,7 +33,28 @@ class Editor extends Component {
   }
 
   componentWillUnmount() {
-    let { id, language } = this.state;
+    let { id, language, question } = this.state;
+    let name = "noel";
+    const json = {
+      id: id,
+      name: name,
+      difficulty: question.difficulty,
+      questionName: question.questionName,
+      funcDescp: question.funcDescp,
+      functionCode: question.function,
+      funcAns: question.funcAns,
+      funcCall: question.funcCall,
+      language: question.language,
+    };
+    fetch(`/saveCode`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(json),
+    });
+    console.log("hh");
     fetch(`/destroyCode`, {
       method: "POST",
       headers: {
@@ -47,7 +68,8 @@ class Editor extends Component {
   async getQuestionInfo() {
     let { id, question } = this.state;
     id = this.props.match.params.id;
-    const fetch_resp = await fetch(`/getQuestionInfo/${id}`);
+    let name = this.props.match.params.name;
+    const fetch_resp = await fetch(`/getQuestionInfo/${id}/${name}`);
     const json_resp = await fetch_resp.json();
     question = json_resp.data;
     this.setState({

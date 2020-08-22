@@ -11,7 +11,7 @@ const App = () => {
     <Router>
       <Switch>
         <Route path="/questions" component={Questions} />
-        <Route path="/editor/:id" component={Editor} />
+        <Route path="/editor/:id/:name" component={Editor} />
         <Route path="/addquestion" component={AddQuestion} />
       </Switch>
     </Router>
