@@ -25,6 +25,10 @@ class Editor extends Component {
 
       switchPanel: false,
     };
+    window.addEventListener("beforeunload", (ev) => {
+      ev.preventDefault();
+      return this.savingData();
+    });
   }
 
   componentDidMount() {
@@ -33,28 +37,7 @@ class Editor extends Component {
   }
 
   componentWillUnmount() {
-    let { id, language, question } = this.state;
-    let name = "noel";
-    const json = {
-      id: id,
-      name: name,
-      difficulty: question.difficulty,
-      questionName: question.questionName,
-      funcDescp: question.funcDescp,
-      functionCode: question.function,
-      funcAns: question.funcAns,
-      funcCall: question.funcCall,
-      language: question.language,
-    };
-    fetch(`/saveCode`, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(json),
-    });
-    console.log("hh");
+    let { id, language } = this.state;
     fetch(`/destroyCode`, {
       method: "POST",
       headers: {
@@ -78,8 +61,32 @@ class Editor extends Component {
     });
   }
 
+  savingData() {
+    let { id, question } = this.state;
+    let name = "noel";
+    const jsonData = {
+      id: id,
+      name: name,
+      difficulty: question.difficulty,
+      questionName: question.questionName,
+      funcDescp: question.funcDescp,
+      functionCode: question.function,
+      funcAns: question.funcAns,
+      funcCall: question.funcCall,
+      language: question.language,
+    };
+    fetch(`/saveCode`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(jsonData),
+    });
+  }
+
   handleChange = (editor, data, value) => {
-    let { question } = this.state;
+    let { id, question } = this.state;
     question.function = value;
     this.setState({
       question,
@@ -92,6 +99,7 @@ class Editor extends Component {
     let { id, question, log, testCases, switchPanel } = this.state;
     testCases = [];
     log = [];
+    this.savingData();
     const json = {
       id: id,
       functionCode: question.function,

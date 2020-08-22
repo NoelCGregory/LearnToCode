@@ -299,19 +299,20 @@ app.get("/getQuestionInfo/:id/:name", (request, response) => {
   let ref = db.ref(`Users/${name}/${id}`);
   ref.once("value").then((snapshot) => {
     let result = snapshot.exists();
-    if (result == true) {
-      ref = db.ref(`Users/${name}/${id}`);
-    } else {
-      ref = db.ref(`Questions/${id}`);
-    }
     let searchQuery = {
       data: "no Search Data Found",
     };
-    ref
-      .once("value", (data) => {
-        searchQuery.data = data.val();
-      })
-      .then(() => response.json(searchQuery));
+    if (result == true) {
+      searchQuery.data = snapshot.val();
+      response.json(searchQuery);
+    } else {
+      ref = db.ref(`Questions/${id}`);
+      ref
+        .once("value", (data) => {
+          searchQuery.data = data.val();
+        })
+        .then(() => response.json(searchQuery));
+    }
   });
 });
 
