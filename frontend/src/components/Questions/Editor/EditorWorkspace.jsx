@@ -25,12 +25,9 @@ class Editor extends Component {
 
       switchPanel: false,
     };
-    window.addEventListener("beforeunload", (ev) => {
-      ev.preventDefault();
-      return this.unMount();
-    });
   }
-  unMount() {
+  unMount = (e) => {
+    e.preventDefault();
     let { id, language, question } = this.state;
     fetch(`/destroyCode`, {
       method: "POST",
@@ -60,23 +57,17 @@ class Editor extends Component {
       },
       body: JSON.stringify(jsonData),
     });
-  }
+    return;
+  };
 
   componentDidMount() {
+    window.addEventListener("beforeunload", this.unMount);
     this.getQuestionInfo();
     document.getElementById("loaderConsole").style.display = "none";
   }
 
   componentWillUnmount() {
-    let { id, language } = this.state;
-    fetch(`/destroyCode`, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id, language }),
-    });
+    this.unMount();
   }
 
   async getQuestionInfo() {

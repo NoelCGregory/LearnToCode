@@ -206,6 +206,7 @@ ${functionCallAr}`;
             response.json(reply);
           } else {
             exec(`docker run  ${codeId}`, (errorrRun, stdoutRun, stderrRun) => {
+              console.log(errorrRun + "dd" + stdoutRun + "d" + stderrRun);
               if (errorrRun != null) {
                 error.push(stderrRun);
               }
@@ -281,7 +282,6 @@ app.post("/saveCode", (request, response) => {
     funcCall,
     language,
   } = request.body;
-  let ref = db.ref(`Users/${name}/${id}`);
   const saveData = {
     difficulty: difficulty,
     funcAns: funcAns,
@@ -291,6 +291,8 @@ app.post("/saveCode", (request, response) => {
     language: language,
     questionName: questionName,
   };
+  console.log("saved");
+  let ref = db.ref(`Users/${name}/${id}`);
   ref.set(saveData);
 });
 app.get("/getQuestionInfo/:id/:name", (request, response) => {
