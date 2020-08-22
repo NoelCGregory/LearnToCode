@@ -1,7 +1,8 @@
 
 function sortAr(a){
- //Write some code
- return a.sort((a,b) => a-b);
+  let result = a.sort((a,b) => a-b);
+  console.log(result);
+ return result;
 }
 
       try {

@@ -27,7 +27,38 @@ class Editor extends Component {
     };
     window.addEventListener("beforeunload", (ev) => {
       ev.preventDefault();
-      return this.savingData();
+      return this.unMount();
+    });
+  }
+  unMount() {
+    let { id, language, question } = this.state;
+    fetch(`/destroyCode`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id, language }),
+    });
+    let name = "noel";
+    const jsonData = {
+      id: id,
+      name: name,
+      difficulty: question.difficulty,
+      questionName: question.questionName,
+      funcDescp: question.funcDescp,
+      functionCode: question.function,
+      funcAns: question.funcAns,
+      funcCall: question.funcCall,
+      language: question.language,
+    };
+    fetch(`/saveCode`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(jsonData),
     });
   }
 
@@ -61,30 +92,6 @@ class Editor extends Component {
     });
   }
 
-  savingData() {
-    let { id, question } = this.state;
-    let name = "noel";
-    const jsonData = {
-      id: id,
-      name: name,
-      difficulty: question.difficulty,
-      questionName: question.questionName,
-      funcDescp: question.funcDescp,
-      functionCode: question.function,
-      funcAns: question.funcAns,
-      funcCall: question.funcCall,
-      language: question.language,
-    };
-    fetch(`/saveCode`, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(jsonData),
-    });
-  }
-
   handleChange = (editor, data, value) => {
     let { id, question } = this.state;
     question.function = value;
@@ -99,7 +106,6 @@ class Editor extends Component {
     let { id, question, log, testCases, switchPanel } = this.state;
     testCases = [];
     log = [];
-    this.savingData();
     const json = {
       id: id,
       functionCode: question.function,
