@@ -59,7 +59,7 @@ class Editor extends Component {
       },
       body: JSON.stringify(jsonData),
     });
-    return;
+    return "";
   };
 
   componentDidMount() {

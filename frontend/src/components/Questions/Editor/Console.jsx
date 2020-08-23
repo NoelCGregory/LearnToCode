@@ -16,7 +16,8 @@ const Console = (props) => {
       item.includes("failed") === false &&
       item.includes("Traceback") === false &&
       item.includes("Main.java") === false &&
-      item.includes("Main.cpp") === false
+      item.includes("Main.cpp") === false &&
+      item.includes("/app/Main.js") === false
     ) {
       return { color: "white" };
     } else if (item.includes("passed") === true) {

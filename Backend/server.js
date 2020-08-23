@@ -142,13 +142,8 @@ except NameError:
     extension = "js";
     functionCallAr = functionCall.split("^").reduce((acc, val) => {
       return (acc += `
-      try {
         console.log("-||"+${val.replace(";", "")}+ "||-");
-        console.log("%")
-      }
-      catch(e) { 
-        console.log(e);
-      }`);
+        console.log("%")`);
     }, "");
   }
 
@@ -180,10 +175,10 @@ ${functionCallAr}`;
   }
   fs.writeFileSync(`./DockerFiles/${codeId}/Dockerfile`, dockerStr);
   let reply = {};
-
   exec(
     `docker build -t ${codeId} ./DockerFiles/${codeId}`,
     (error, stdout, stderr) => {
+      console.log("alerted");
       switch (language) {
         case "c++":
         case "java":
@@ -206,7 +201,6 @@ ${functionCallAr}`;
             response.json(reply);
           } else {
             exec(`docker run  ${codeId}`, (errorrRun, stdoutRun, stderrRun) => {
-              console.log(errorrRun + "dd" + stdoutRun + "d" + stderrRun);
               if (errorrRun != null) {
                 error.push(stderrRun);
               }
