@@ -1,9 +1,41 @@
 const chai = require("chai");
-const r = require("../app");
+      const r = require("../program");
 
-it("Test Case #1", function () {
-  chai.expect(r(5)).equal(6);
-});
-it("Test Case #2", function () {
-  chai.expect(r(6)).equal(5);
-});
+
+      console.log('start');
+     describe("Test Cases",function(){
+          it("%", function () {
+            try{
+              let p = r(2);
+              chai.expect(p).equal(4);
+            }catch(err){
+              console.log(err);
+            }
+          
+          });
+          it("%", function () {
+
+            try{
+              let p = r(2);
+              chai.expect(p).equal(3);
+            }catch(err){
+              console.log(err);
+            }
+            
+
+          });
+          it("%", function () {
+
+            try{
+              let p = r(2);
+              chai.expect(p).equal(2);
+            }catch(err){
+              console.log(err);
+            }
+            
+
+          });
+          it("end", function () {
+          });
+      })
+    

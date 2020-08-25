@@ -18,5 +18,8 @@
     "fs": "0.0.1-security",
     "fs-extra": "^9.0.1",
     "js-beautify": "^1.12.0"
+  },
+  "devDependencies": {
+    "mocha-junit-reporter": "^2.0.0"
   }
 }

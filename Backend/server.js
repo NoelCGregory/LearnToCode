@@ -19,38 +19,12 @@ admin.initializeApp({
 const db = admin.database();
 
 let initialCode = {
-  java: {
-    initCode: `
-    public class Main {
-      public static void main(String[] args) {
-        `,
-    DockerImage: `FROM openjdk:alpine
-    COPY . /
-    WORKDIR ./
-    RUN javac Main.java
-    CMD ["java", "Main"]`,
-  },
-  "c++": {
-    initCode: `
-    #include <iostream>
-    using namespace std;`,
-    DockerImage: `FROM jianann/alpine-gcc
-    COPY . /app
-    WORKDIR /app
-    RUN g++ -o Main Main.cpp
-    CMD ["./Main"]`,
-  },
-  python: {
-    DockerImage: `FROM python:alpine
-    COPY Main.py ./Main.py
-    CMD ["python","Main.py"]`,
-  },
   javascript: {
     DockerImage: `FROM node:alpine
-    WORKDIR /app
-    RUN npm install
-    COPY package*.json Main.js ./
-    CMD ["node", "Main.js"] `,
+    RUN npm install -g mocha
+    RUN npm install chai
+    COPY package*.json .  ./
+    CMD ["npm", "test"]`,
   },
 };
 
@@ -70,13 +44,8 @@ app.post("/destroyCode", (request, response) => {
   let { id, language } = request.body;
   const codeId = id.toLowerCase().replace("-", "").replace("_", "");
   let extension = "js";
-  if (language === "c++") {
-    extension = "cpp";
-  } else if (language === "python") {
-    extension = "py";
-  } else if (language === "java") {
-    extension = "java";
-  } else if (language === "javascript") {
+
+  if (language === "javascript") {
     extension = "js";
   }
 
@@ -99,78 +68,90 @@ app.post("/code", (request, response) => {
   let functionAnswer = functionAns.split("?");
   let extension = "";
   console.log(codeId);
-  let dir = `./DockerFiles/${codeId}`;
+  let dir = `./DockerFiles/${codeId}/test`;
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
   }
   extension = "js";
-  if (language === "c++") {
-    extension = "cpp";
-    functionCallAr = functionCall.split("^").reduce((acc, val) => {
-      return (acc += `
-      try {
-        cout << "-||" << ${val.replace(";", "")} << "||-" ;
-        cout << "%";
-      }catch (const std::exception& e)
-      {
-         std::cout << e.what();
-      }`);
-    }, "");
-  } else if (language === "python") {
-    extension = "py";
-    functionCallAr = functionCall.split("^").reduce((acc, val) => {
-      return (acc += `
-try:
-  print("-||"+str(${val})+ "||-")
-  print("%")
-except NameError:
-  print(""+NameError)`);
-    }, "");
-  } else if (language === "java") {
-    extension = "java";
-    functionCallAr = functionCall.split("^").reduce((acc, val) => {
-      return (acc += `
-      try {
-        System.out.println("-||"+${val.replace(";", "")}+ "||-");
-        System.out.println("%");
-      }
-      catch(Exception e) {
-        System.out.println(e);
-      }`);
-    }, "");
-  } else if (language === "javascript") {
+  if (language === "javascript") {
     extension = "js";
-    functionCallAr = functionCall.split("^").reduce((acc, val) => {
-      return (acc += `
-        console.log("-||"+${val.replace(";", "")}+ "||-");
-        console.log("%")`);
-    }, "");
+    fs.writeFileSync(
+      `./DockerFiles/${codeId}/package.json`,
+      `{
+      "name": "Chai",
+      "version": "1.0.0",
+      "description": "",
+      "main": "app.js",
+      "directories": {
+        "test": "test"
+      },
+      "scripts": {
+        "test": "mocha || true  "
+      },
+      "keywords": [],
+      "author": "",
+      "license": "ISC",
+      "devDependencies": {
+        "mocha": "^8.1.1"
+      }
+    }
+    `
+    );
+
+    fs.writeFileSync(
+      `./DockerFiles/${codeId}/test/test.js`,
+      `const chai = require("chai");
+      const r = require("../program");
+
+
+      console.log('start');
+     describe("Test Cases",function(){
+          it("%", function () {
+            try{
+              let p = r(2);
+              chai.expect(p).equal(4);
+            }catch(err){
+              console.log(err);
+            }
+          
+          });
+          it("%", function () {
+
+            try{
+              let p = r(2);
+              chai.expect(p).equal(3);
+            }catch(err){
+              console.log(err);
+            }
+            
+
+          });
+          it("%", function () {
+
+            try{
+              let p = r(2);
+              chai.expect(p).equal(2);
+            }catch(err){
+              console.log(err);
+            }
+            
+
+          });
+          it("end", function () {
+          });
+      })
+    `
+    );
   }
 
   let dockerStr = "";
-  let codeStr = "";
   switch (language) {
-    case "c++":
-    case "java":
-      dockerStr = initialCode[language].DockerImage;
-      if (language == "c++") {
-        codeStr = `${initialCode[language].initCode}${functionCode} int main ()
-        { ${functionCallAr}}`;
-      } else {
-        codeStr = `${initialCode[language].initCode} 
-        ${functionCallAr}
-      }
-      ${functionCode}
-      }`;
-      }
-      fs.writeFileSync(`./DockerFiles/${codeId}/Main.${extension}`, codeStr);
-      break;
     default:
       dockerStr = initialCode[language].DockerImage;
-      codeStr = `
-${functionCode}
-${functionCallAr}`;
-      fs.writeFileSync(`./DockerFiles/${codeId}/Main.${extension}`, codeStr);
+      fs.writeFileSync(
+        `./DockerFiles/${codeId}/program.${extension}`,
+        functionCode
+      );
       break;
   }
   fs.writeFileSync(`./DockerFiles/${codeId}/Dockerfile`, dockerStr);
@@ -179,88 +160,50 @@ ${functionCallAr}`;
     `docker build -t ${codeId} ./DockerFiles/${codeId}`,
     (error, stdout, stderr) => {
       console.log("alerted");
-      switch (language) {
-        case "c++":
-        case "java":
-          let output = [];
-          let error = [];
-          let array = [];
 
-          if (stdout.includes("error") == true) {
-            error.push(
-              stdout
-                .split("Step 4/5")[1]
-                .split("---> Running in")[1]
-                .slice(14, stdout.length)
-            );
-            reply = {
-              data: output,
-              err: error,
-              testCases: array,
-            };
-            response.json(reply);
-          } else {
-            exec(`docker run  ${codeId}`, (errorrRun, stdoutRun, stderrRun) => {
-              if (errorrRun != null) {
-                error.push(stderrRun);
+      exec(`docker run  ${codeId}`, (errorrRun, stdoutRun, stderrRun) => {
+        let error = [];
+        let output = [];
+
+        let array = [];
+
+        array = stdoutRun
+          .split("Test Cases")[1]
+          .split("✓ end")[0]
+          .split("%")
+          .map((tempCases, idx) => {
+            let testCase = "failed";
+            if (tempCases.includes("ReferenceError:") == false) {
+              let id = tempCases.indexOf("at Context.<anonymous>");
+              if (id > -1) {
+                tempCases = tempCases.slice(0, id);
               }
-              let array = stdoutRun.split("%").map((val, idx, array) => {
-                let temp = val.split("-||").pop().split("||-")[0];
-                let tempConsole = val.replace(`-||${temp}||-`, "");
-                if (array.length - 1 != idx) {
-                  output.push(
-                    `Test Case Result ${
-                      idx + 1
-                    }:\n  ${tempConsole.trim().replace("\n", "")}`
-                  );
-                  return `<---Test Case ${idx + 1} --->\n${compareResult(
-                    temp,
-                    functionAnswer[idx]
-                  )}`;
-                }
-              });
-              array.pop();
-              reply = {
-                data: output,
-                err: error,
-                testCases: array,
-              };
-              response.json(reply);
-            });
-          }
-          break;
-        default:
-          exec(`docker run  ${codeId}`, (errorrRun, stdoutRun, stderrRun) => {
-            let output = [];
-            let error = [];
-            if (errorrRun != null) {
-              error.push(stderrRun);
             }
-            let array = stdoutRun.split("%").map((val, idx, array) => {
-              let temp = val.split("-||").pop().split("||-")[0];
-              let tempConsole = val.replace(`-||${temp}||-`, "");
-              if (array.length - 1 != idx) {
-                output.push(
-                  `Test Case Result ${idx + 1}:\n  ${tempConsole
-                    .trim()
-                    .replace("\n", "")}`
-                );
-                return `<---Test Case ${idx + 1} --->\n${compareResult(
-                  temp,
-                  functionAnswer[idx]
-                )}`;
-              }
-            });
-            array.pop();
-            reply = {
-              data: output,
-              err: error,
-              testCases: array,
-            };
-            response.json(reply);
+
+            if (tempCases.includes("AssertionError:") == true) {
+              testCase = "✕ failed";
+            } else if (tempCases.includes("ReferenceError:") == true) {
+              testCase = "✕ failed";
+              tempCases = tempCases.replace("✓", "");
+            } else if (tempCases.includes("✓") == true) {
+              testCase = "✓ passed";
+              tempCases = tempCases.replace("✓", "");
+            }
+
+            output.push(`Test Case #${idx + 1} Output:\n  ${tempCases.trim()}`);
+            return `<---- Test Case ${idx + 1} ---->\n  ${testCase}`;
           });
-          break;
-      }
+
+        array.pop();
+        output.pop();
+
+        reply = {
+          data: output,
+          err: error,
+          testCases: array,
+        };
+        response.json(reply);
+      });
     }
   );
 });

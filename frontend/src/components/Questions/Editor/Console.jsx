@@ -15,11 +15,10 @@ const Console = (props) => {
       item.includes("passed") === false &&
       item.includes("failed") === false &&
       item.includes("Traceback") === false &&
-      item.includes("Main.java") === false &&
-      item.includes("Main.cpp") === false &&
-      item.includes("/app/Main.js") === false
+      item.includes("AssertionError:") === false &&
+      item.includes("ReferenceError") === false
     ) {
-      return { color: "white" };
+      return { color: "#00AF32" };
     } else if (item.includes("passed") === true) {
       return { color: "#00AF32" };
     } else {

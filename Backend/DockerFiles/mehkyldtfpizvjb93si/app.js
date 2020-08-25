@@ -1,5 +1,3 @@
-const test1 = (a) => {
-  return a * 2;
+module.exports = (a) => {
+  return a;
 };
-
-module.exports = test1;
