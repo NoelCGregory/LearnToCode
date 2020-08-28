@@ -10,6 +10,7 @@ const admin = require("firebase-admin");
 
 const serviceAccount = require("./serviceAccountKey.json");
 const { request, response } = require("express");
+const { start } = require("repl");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -19,6 +20,11 @@ admin.initializeApp({
 const db = admin.database();
 
 let initialCode = {
+  python: {
+    DockerImage: `FROM python:alpine
+    COPY . ./
+    CMD python -m unittest -v Main.py`,
+  },
   javascript: {
     DockerImage: `FROM node:alpine
     RUN npm install -g mocha
@@ -68,13 +74,17 @@ app.post("/code", (request, response) => {
   let functionAnswer = functionAns.split("?");
   let extension = "";
   console.log(codeId);
-  let dir = `./DockerFiles/${codeId}/test`;
+  let dir = `./DockerFiles/${codeId}`;
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
   }
   extension = "js";
   if (language === "javascript") {
     extension = "js";
+    let dir = `./DockerFiles/${codeId}/test`;
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
+    }
     fs.writeFileSync(
       `./DockerFiles/${codeId}/package.json`,
       `{
@@ -103,7 +113,6 @@ app.post("/code", (request, response) => {
       `const chai = require("chai");
       const r = require("../program");
 
-
       console.log('start');
      describe("Test Cases",function(){
           it("%", function () {
@@ -113,33 +122,58 @@ app.post("/code", (request, response) => {
             }catch(err){
               console.log(err);
             }
-          
           });
           it("%", function () {
-
             try{
               let p = r(2);
               chai.expect(p).equal(3);
             }catch(err){
               console.log(err);
             }
-            
-
           });
           it("%", function () {
-
             try{
               let p = r(2);
               chai.expect(p).equal(2);
             }catch(err){
               console.log(err);
             }
-            
-
           });
           it("end", function () {
           });
       })
+    `
+    );
+  } else if (language === "python") {
+    extension = "py";
+    fs.writeFileSync(
+      `./DockerFiles/${codeId}/Main.py`,
+      `
+import unittest
+import program
+
+class Main(unittest.TestCase):
+    
+    def test_Case1(self):
+        print('=========')
+        try:
+            self.assertEqual(program.addVal(1,3), 4)
+        except NameError:
+            print(""+NameError)
+
+    def test_Case2(self):
+        print('=========')
+        try:
+            self.assertEqual(program.addVal(1,3), 3)
+        except NameError:
+            print(""+NameError)
+
+    def test_Case3(self):
+        print('=========')
+        try:
+            self.assertEqual(program.addVal(1,3), 3)
+        except NameError:
+            print(""+NameError)
     `
     );
   }
@@ -166,36 +200,102 @@ app.post("/code", (request, response) => {
         let output = [];
 
         let array = [];
-
-        array = stdoutRun
-          .split("Test Cases")[1]
-          .split("✓ end")[0]
-          .split("%")
-          .map((tempCases, idx) => {
-            let testCase = "failed";
-            if (tempCases.includes("ReferenceError:") == false) {
-              let id = tempCases.indexOf("at Context.<anonymous>");
-              if (id > -1) {
-                tempCases = tempCases.slice(0, id);
+        if (extension == "js") {
+          array = stdoutRun
+            .split("Test Cases")[1]
+            .split("✓ end")[0]
+            .split("%")
+            .map((tempCases, idx) => {
+              let testCase = "failed";
+              if (tempCases.includes("ReferenceError:") == false) {
+                let id = tempCases.indexOf("at Context.<anonymous>");
+                if (id > -1) {
+                  tempCases = tempCases.slice(0, id);
+                }
               }
-            }
 
-            if (tempCases.includes("AssertionError:") == true) {
-              testCase = "✕ failed";
-            } else if (tempCases.includes("ReferenceError:") == true) {
-              testCase = "✕ failed";
-              tempCases = tempCases.replace("✓", "");
-            } else if (tempCases.includes("✓") == true) {
-              testCase = "✓ passed";
-              tempCases = tempCases.replace("✓", "");
-            }
+              if (tempCases.includes("AssertionError:") == true) {
+                testCase = "✕ failed";
+              } else if (tempCases.includes("ReferenceError:") == true) {
+                testCase = "✕ failed";
+                tempCases = tempCases.replace("✓", "");
+              } else if (tempCases.includes("✓") == true) {
+                testCase = "✓ passed";
+                tempCases = tempCases.replace("✓", "");
+              }
 
-            output.push(`Test Case #${idx + 1} Output:\n  ${tempCases.trim()}`);
-            return `<---- Test Case ${idx + 1} ---->\n  ${testCase}`;
-          });
+              output.push(
+                `Test Case #${idx + 1} Output:\n  ${tempCases.trim()}`
+              );
+              return `<---- Test Case ${idx + 1} ---->\n  ${testCase}`;
+            });
 
-        array.pop();
-        output.pop();
+          array.pop();
+          output.pop();
+        } else {
+          let userOutput = stdoutRun
+            .split("=========")
+            .filter((val) => val.length > 1);
+          if (stderrRun.includes("AssertionError:") == false) {
+            let startId = stderrRun.indexOf(
+              `File "/usr/local/lib/python3.8/runpy.py"`
+            );
+            let endId = stderrRun.indexOf(`program`) + 10;
+            let errOutput =
+              stderrRun.slice(0, startId) +
+              stderrRun.slice(endId, stderrRun.length);
+            error.push(errOutput);
+          } else {
+            let temp = stderrRun
+              .replace(
+                "======================================================================",
+                "cut"
+              )
+              .split("cut");
+            let outputTemp = temp[1]
+              .split("Ran")[0]
+              .split(
+                "======================================================================"
+              )
+              .map((val, idx) => {
+                return val.split(
+                  "----------------------------------------------------------------------"
+                );
+              });
+
+            output = userOutput.map((val, idx) => {
+              let idxPlus = idx + 1;
+              for (let i = 0; i < outputTemp.length; i++) {
+                let caseNum = outputTemp[i][0];
+                if (caseNum.indexOf("test_Case" + idxPlus) > -1) {
+                  let tempConsole = outputTemp[i][1];
+                  return `Test Case Result ${idx}:${val}${tempConsole.trim()}`;
+                }
+              }
+              return `Test Case Result ${idx}:${val}`;
+            });
+            array = temp[0]
+              .split("\n")
+              .map((val, idx) => {
+                let testCase = "failed";
+                tempCases = "undefined";
+                if (val.length != 0) {
+                  if (val.includes("ok") == true) {
+                    testCase = "✓ passed";
+                  } else if (val.includes("FAIL") == true) {
+                    testCase = "✕ failed";
+                  }
+                  return `<---- Test Case ${idx + 1} ---->\n  ${testCase}`;
+                }
+                return null;
+              })
+              .filter((val) => {
+                if (val != null) {
+                  return val;
+                }
+              });
+          }
+        }
 
         reply = {
           data: output,

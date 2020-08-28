@@ -124,6 +124,8 @@ class Editor extends Component {
       testCases = json_resp.testCases;
     }
 
+    console.log(testCases);
+
     let endTime = new Date();
     var timeDiff = endTime - startTime; //in ms
     // strip the ms

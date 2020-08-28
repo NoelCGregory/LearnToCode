@@ -11,6 +11,7 @@ import {
 const Console = (props) => {
   const { logConsole, onSwitch, size } = props;
   function pickColor(item) {
+    console.log(item + "dsd");
     if (
       item.includes("passed") === false &&
       item.includes("failed") === false &&
