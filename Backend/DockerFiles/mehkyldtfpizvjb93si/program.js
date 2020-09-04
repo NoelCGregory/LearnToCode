@@ -1,6 +1,5 @@
 module.exports = function (a,b){
-  hj
-  console.log('test a'+ag);
+  console.log('test a'ee);
   return a*2;
 }
 
